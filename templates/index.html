@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Fake News Detection System — powered by Machine Learning (TF-IDF + Logistic Regression). Enter a news headline or article to check if it's real or fake." />
+  <title>Fake News Detection System</title>
+
+  <!-- Google Font: Inter — modern, professional, highly legible -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+
+  <!-- ─── BACKGROUND ANIMATED GRADIENT BLOBS ────────────────────────────── -->
+  <div class="bg-blob bg-blob-1" aria-hidden="true"></div>
+  <div class="bg-blob bg-blob-2" aria-hidden="true"></div>
+  <div class="bg-blob bg-blob-3" aria-hidden="true"></div>
+
+  <!-- ─── MAIN WRAPPER ──────────────────────────────────────────────────── -->
+  <main class="page-wrapper" role="main">
+
+    <!-- ── HEADER ─────────────────────────────────────────────────────────── -->
+    <header class="site-header">
+      <div class="header-icon" aria-hidden="true">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2z"/>
+          <path d="M16 2v20"/>
+          <path d="M8 7h4"/>
+          <path d="M8 11h4"/>
+          <path d="M8 15h4"/>
+        </svg>
+      </div>
+      <div class="header-text">
+        <h1 class="site-title">Fake News Detection System</h1>
+        <p class="site-subtitle">Powered by Machine Learning &mdash; TF-IDF &amp; Logistic Regression</p>
+      </div>
+    </header>
+
+    <!-- ── MAIN CARD ───────────────────────────────────────────────────────── -->
+    <section class="card" aria-label="News analysis form">
+
+      <!-- Form description -->
+      <p class="card-intro">
+        Enter a news headline or article excerpt below. Our ML model will analyse it and
+        determine whether it is <strong>Real</strong> or <strong>Fake</strong> news, along with a
+        confidence score.
+      </p>
+
+      <!-- ── INPUT FORM ─────────────────────────────────────────────────── -->
+      <form id="prediction-form" action="/predict" method="POST" novalidate>
+
+        <div class="form-group">
+          <label for="news_text" class="form-label">
+            News Headline or Article Text
+          </label>
+          <textarea
+            id="news_text"
+            name="news_text"
+            class="form-textarea {% if error %}textarea-error{% endif %}"
+            rows="6"
+            maxlength="5000"
+            placeholder="Paste or type a news headline here…&#10;&#10;Example: &quot;Scientists discover new vaccine that reduces flu mortality by 40 percent&quot;"
+            aria-describedby="char-count form-hint"
+            required
+          >{{ input_text | e }}</textarea>
+
+          <!-- Character counter -->
+          <div class="textarea-footer">
+            <span id="form-hint" class="form-hint">Min. 10 characters recommended for accurate results</span>
+            <span id="char-count" class="char-count">0 / 5000</span>
+          </div>
+        </div>
+
+        <!-- ── ERROR MESSAGE ────────────────────────────────────────────── -->
+        {% if error %}
+        <div class="alert alert-error" role="alert" aria-live="polite">
+          <span class="alert-icon" aria-hidden="true">⚠️</span>
+          <span>{{ error }}</span>
+        </div>
+        {% endif %}
+
+        <!-- Submit button -->
+        <button type="submit" id="submit-btn" class="btn-primary">
+          <span class="btn-icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="m21 21-4.35-4.35"/>
+            </svg>
+          </span>
+          <span class="btn-text">Analyse News</span>
+          <span class="btn-loader" aria-hidden="true"></span>
+        </button>
+
+      </form>
+
+      <!-- ── RESULT BOX ─────────────────────────────────────────────────── -->
+      {% if result %}
+      <div class="result-box result-{{ result | lower }}" role="status" aria-live="polite" aria-label="Prediction result">
+
+        <div class="result-header">
+          <div class="result-badge">
+            {% if result == "Real" %}
+            <span class="badge-icon" aria-hidden="true">✅</span>
+            {% else %}
+            <span class="badge-icon" aria-hidden="true">🚫</span>
+            {% endif %}
+            <span class="badge-label">{{ result }} News</span>
+          </div>
+          <div class="result-label-tag result-{{ result | lower }}-tag">
+            {{ result | upper }}
+          </div>
+        </div>
+
+        <!-- Confidence bar -->
+        <div class="confidence-section">
+          <div class="confidence-header">
+            <span class="confidence-label">Model Confidence</span>
+            <span class="confidence-value">{{ confidence }}%</span>
+          </div>
+          <div class="confidence-bar-track" role="progressbar" aria-valuenow="{{ confidence }}" aria-valuemin="0" aria-valuemax="100" aria-label="Confidence: {{ confidence }}%">
+            <div class="confidence-bar-fill confidence-bar-{{ result | lower }}" style="width: {{ confidence }}%"></div>
+          </div>
+        </div>
+
+        <!-- Explanation note -->
+        <p class="result-note">
+          {% if result == "Real" %}
+          The model predicts this news is <strong>Real</strong> with <strong>{{ confidence }}%</strong> confidence, based on linguistic patterns learned from verified news sources.
+          {% else %}
+          The model predicts this news is <strong>Fake</strong> with <strong>{{ confidence }}%</strong> confidence. It exhibits patterns commonly found in misinformation or sensational content.
+          {% endif %}
+        </p>
+
+        <!-- Disclaimer -->
+        <p class="result-disclaimer">
+          ⚠️ This is an ML-based prediction for educational purposes only. Always verify news through trusted sources.
+        </p>
+
+      </div>
+      {% endif %}
+
+    </section>
+
+    <!-- ── FEATURE PILLS ───────────────────────────────────────────────────── -->
+    <section class="features-row" aria-label="System features">
+      <div class="feature-pill">
+        <span class="pill-icon" aria-hidden="true">🤖</span>
+        <span>TF-IDF + Logistic Regression</span>
+      </div>
+      <div class="feature-pill">
+        <span class="pill-icon" aria-hidden="true">⚡</span>
+        <span>Instant Prediction</span>
+      </div>
+      <div class="feature-pill">
+        <span class="pill-icon" aria-hidden="true">🗄️</span>
+        <span>SQLite Logging</span>
+      </div>
+      <div class="feature-pill">
+        <span class="pill-icon" aria-hidden="true">📊</span>
+        <span>Confidence Score</span>
+      </div>
+    </section>
+
+    <!-- ── HISTORY LINK ────────────────────────────────────────────────────── -->
+    <div class="history-link-wrapper">
+      <a href="/history" id="view-history-btn" class="btn-secondary" aria-label="View last 10 predictions">
+        <span aria-hidden="true">🕓</span>
+        View Prediction History
+      </a>
+    </div>
+
+    <!-- ── FOOTER ──────────────────────────────────────────────────────────── -->
+    <footer class="site-footer">
+      <p>
+        B.Tech Information Technology &mdash; Mini Project &mdash; Fake News Detection using ML
+      </p>
+      <p class="footer-stack">
+        Python &bull; Flask &bull; scikit-learn &bull; SQLite
+      </p>
+    </footer>
+
+  </main>
+
+  <!-- ─── INLINE JAVASCRIPT (minimal) ───────────────────────────────────── -->
+  <script>
+    // ── Character counter for the textarea ─────────────────────────────────
+    const textarea  = document.getElementById('news_text');
+    const charCount = document.getElementById('char-count');
+
+    function updateCharCount() {
+      const len = textarea.value.length;
+      charCount.textContent = len + ' / 5000';
+      // Warn visually when approaching limit
+      charCount.classList.toggle('char-count-warn', len > 4500);
+    }
+
+    textarea.addEventListener('input', updateCharCount);
+    updateCharCount(); // Run on page load (in case input_text was pre-filled)
+
+    // ── Show loading state on form submit ──────────────────────────────────
+    const form   = document.getElementById('prediction-form');
+    const btn    = document.getElementById('submit-btn');
+
+    form.addEventListener('submit', function () {
+      // Only trigger loading state if the field has content
+      if (textarea.value.trim().length > 0) {
+        btn.classList.add('loading');
+        btn.disabled = true;
+      }
+    });
+
+    // ── Auto-scroll to result box if result is present ─────────────────────
+    const resultBox = document.querySelector('.result-box');
+    if (resultBox) {
+      // Smooth scroll to result after a short delay for visual effect
+      setTimeout(function () {
+        resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 200);
+    }
+  </script>
+
+</body>
+</html>

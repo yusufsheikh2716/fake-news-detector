@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Prediction history — last 10 news analyses logged by the Fake News Detection System." />
+  <title>Prediction History — Fake News Detection System</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+
+  <div class="bg-blob bg-blob-1" aria-hidden="true"></div>
+  <div class="bg-blob bg-blob-2" aria-hidden="true"></div>
+  <div class="bg-blob bg-blob-3" aria-hidden="true"></div>
+
+  <main class="page-wrapper" role="main">
+
+    <!-- ── HEADER ─────────────────────────────────────────────────────────── -->
+    <header class="site-header">
+      <div class="header-icon" aria-hidden="true">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12,6 12,12 16,14"/>
+        </svg>
+      </div>
+      <div class="header-text">
+        <h1 class="site-title">Prediction History</h1>
+        <p class="site-subtitle">Last 10 predictions logged by the system</p>
+      </div>
+    </header>
+
+    <!-- ── HISTORY CARD ────────────────────────────────────────────────────── -->
+    <section class="card" aria-label="Prediction history table">
+
+      {% if predictions %}
+
+      <!-- Stats summary row -->
+      <div class="history-stats">
+        <div class="stat-pill">
+          <span class="stat-value">{{ predictions | length }}</span>
+          <span class="stat-label">Entries</span>
+        </div>
+        <div class="stat-pill stat-real">
+          <span class="stat-value">{{ predictions | selectattr(2, 'equalto', 'Real') | list | length }}</span>
+          <span class="stat-label">Real</span>
+        </div>
+        <div class="stat-pill stat-fake">
+          <span class="stat-value">{{ predictions | selectattr(2, 'equalto', 'Fake') | list | length }}</span>
+          <span class="stat-label">Fake</span>
+        </div>
+      </div>
+
+      <!-- Responsive table wrapper -->
+      <div class="table-wrapper" role="region" aria-label="Predictions table" tabindex="0">
+        <table class="history-table" aria-label="Last 10 predictions">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">News Text</th>
+              <th scope="col">Result</th>
+              <th scope="col">Confidence</th>
+              <th scope="col">Timestamp</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in predictions %}
+            <tr class="table-row-{{ row[2] | lower }}">
+              <!-- ID -->
+              <td class="col-id">{{ row[0] }}</td>
+
+              <!-- Input text (truncated to 100 chars for readability) -->
+              <td class="col-text">
+                <span class="text-truncate" title="{{ row[1] | e }}">
+                  {{ row[1][:120] }}{% if row[1] | length > 120 %}…{% endif %}
+                </span>
+              </td>
+
+              <!-- Result badge -->
+              <td class="col-result">
+                <span class="inline-badge inline-badge-{{ row[2] | lower }}">
+                  {% if row[2] == 'Real' %}✅{% else %}🚫{% endif %}
+                  {{ row[2] }}
+                </span>
+              </td>
+
+              <!-- Confidence percentage -->
+              <td class="col-confidence">
+                <span class="confidence-chip confidence-chip-{{ row[2] | lower }}">
+                  {{ "%.1f" | format(row[3]) }}%
+                </span>
+              </td>
+
+              <!-- Timestamp -->
+              <td class="col-timestamp">{{ row[4] }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      {% else %}
+
+      <!-- Empty state -->
+      <div class="empty-state" aria-label="No predictions yet">
+        <div class="empty-icon" aria-hidden="true">📋</div>
+        <h2 class="empty-title">No predictions yet</h2>
+        <p class="empty-msg">
+          Go back to the home page, enter a news headline, and your first prediction will appear here.
+        </p>
+      </div>
+
+      {% endif %}
+
+    </section>
+
+    <!-- ── BACK BUTTON ─────────────────────────────────────────────────────── -->
+    <div class="history-link-wrapper">
+      <a href="/" id="back-home-btn" class="btn-secondary" aria-label="Back to news analyser">
+        <span aria-hidden="true">←</span>
+        Back to Analyser
+      </a>
+    </div>
+
+    <footer class="site-footer">
+      <p>B.Tech Information Technology &mdash; Mini Project &mdash; Fake News Detection using ML</p>
+      <p class="footer-stack">Python &bull; Flask &bull; scikit-learn &bull; SQLite</p>
+    </footer>
+
+  </main>
+
+</body>
+</html>

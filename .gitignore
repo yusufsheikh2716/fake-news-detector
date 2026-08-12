@@ -1,0 +1,51 @@
+# ─── Python ───────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+
+# ─── Virtual environments ──────────────────────────────────────────────────────
+venv/
+env/
+.venv/
+ENV/
+
+# ─── Distribution / packaging ─────────────────────────────────────────────────
+build/
+dist/
+*.egg-info/
+*.egg
+
+# ─── Environment & secrets ────────────────────────────────────────────────────
+.env
+.env.*
+*.env
+
+# ─── Database (local only — Render uses ephemeral filesystem) ─────────────────
+database.db
+
+# ─── Logs ─────────────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ─── macOS system files ───────────────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# ─── IDE / editor configs ─────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ─── Jupyter Notebooks ────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+
+# ─── pytest / coverage ────────────────────────────────────────────────────────
+.pytest_cache/
+htmlcov/
+.coverage
