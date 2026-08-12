@@ -10,7 +10,7 @@
 [![SQLite](https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)](https://www.sqlite.org/)
 [![Render](https://img.shields.io/badge/Deployed%20on-Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://render.com)
 
-**[🚀 Live Demo](LIVE_DEMO_URL)** &nbsp;|&nbsp; **[📂 Repository](https://github.com/yusufsheikh2716/fake-news-detector)** &nbsp;|&nbsp; **[👤 Author](https://github.com/yusufsheikh2716)**
+**[🚀 Live Demo](#)** &nbsp;|&nbsp; **[📂 Repository](https://github.com/yusufsheikh2716/fake-news-detector)** &nbsp;|&nbsp; **[👤 Author](https://github.com/yusufsheikh2716)**
 
 </div>
 
@@ -167,7 +167,7 @@ python app.py
 
 ## 🌐 Live Demo
 
-> 🔗 **[LIVE_DEMO_URL](LIVE_DEMO_URL)** — update after Render deployment
+> 🔗 **Live Demo URL:** _Will be updated after Render deployment. See setup steps below._
 
 The live demo is hosted on **Render (free tier)**. It may take 30–60 seconds to wake up on first visit if the server has been idle (this is normal for Render's free plan).
 
